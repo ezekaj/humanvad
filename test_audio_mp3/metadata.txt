@@ -1,0 +1,53 @@
+German Speech Test Samples (gTTS)
+================================================================================
+
+File: complete_sentence_1.mp3
+Text: Das Hotel hat fünfzig Zimmer
+Description: Complete sentence (hotel rooms)
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: complete_sentence_2.mp3
+Text: Vielen Dank für Ihren Anruf
+Description: Complete sentence (thank you)
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: complete_sentence_3.mp3
+Text: Guten Tag, wie kann ich Ihnen helfen
+Description: Complete greeting
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: incomplete_hesitation.mp3
+Text: Ich möchte Ihnen sagen dass
+Description: Incomplete (ends with "dass")
+Expected Action: wait
+--------------------------------------------------------------------------------
+File: incomplete_preposition.mp3
+Text: Ich gehe zur
+Description: Incomplete (ends with preposition)
+Expected Action: wait
+--------------------------------------------------------------------------------
+File: complete_with_number.mp3
+Text: Der Preis beträgt zweihundert Euro
+Description: Complete with number
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: complete_confirmation.mp3
+Text: Ja, das ist korrekt
+Description: Complete confirmation
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: incomplete_conjunction.mp3
+Text: Das Zimmer ist verfügbar und
+Description: Incomplete (ends with "und")
+Expected Action: wait
+--------------------------------------------------------------------------------
+File: complete_question.mp3
+Text: Haben Sie noch weitere Fragen
+Description: Complete question
+Expected Action: interrupt
+--------------------------------------------------------------------------------
+File: complete_polite.mp3
+Text: Sehr gerne, ich helfe Ihnen
+Description: Complete polite response
+Expected Action: interrupt
+--------------------------------------------------------------------------------
