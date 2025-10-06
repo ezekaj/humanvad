@@ -1,0 +1,19 @@
+Generated with edge-tts (Microsoft Azure Neural Voice)
+Voice: de-DE-KatjaNeural
+Content: Longer German hotel conversation sentences (15-30 words)
+
+long_complete_1.wav: [interrupt] Das Hotel verfügt über fünfzig modern ausgestattete Zimmer mit kostenlosem WLAN und Klimaanlage für Ihren komfortablen Aufenthalt
+long_complete_2.wav: [interrupt] Ich habe Ihre Reservierung für drei Nächte vom fünfzehnten bis zum achtzehnten Oktober im Doppelzimmer mit Meerblick bestätigt
+long_complete_3.wav: [interrupt] Das Frühstücksbuffet wird täglich von sieben bis elf Uhr im Restaurantbereich im Erdgeschoss serviert und ist im Zimmerpreis bereits enthalten
+long_complete_4.wav: [interrupt] Der Gesamtpreis für Ihren Aufenthalt beträgt dreihundertfünfzig Euro inklusive Mehrwertsteuer und Frühstück für zwei Personen
+long_complete_5.wav: [interrupt] Selbstverständlich können Sie das Zimmer auch früher beziehen wenn es bereits ab vierzehn Uhr zur Verfügung steht und gereinigt wurde
+long_incomplete_1.wav: [interrupt] Ich möchte Ihnen gerne noch mitteilen dass wir auch einen Wellnessbereich haben mit
+long_incomplete_2.wav: [interrupt] Das Zimmer befindet sich im dritten Stock und Sie erreichen es über den Fahrstuhl oder
+long_incomplete_3.wav: [interrupt] Für die Zahlung akzeptieren wir Kreditkarten, EC-Karten und natürlich auch
+long_incomplete_4.wav: [interrupt] Die Stornierungsbedingungen sehen vor dass Sie bis zu vierundzwanzig Stunden vor
+long_incomplete_5.wav: [interrupt] Unser Concierge-Service steht Ihnen jederzeit zur Verfügung wenn Sie Fragen haben oder
+long_question_1.wav: [interrupt] Haben Sie spezielle Wünsche bezüglich der Zimmerausstattung oder möchten Sie vielleicht ein Zimmer in einer bestimmten Etage reservieren
+long_question_2.wav: [interrupt] Darf ich Sie fragen ob Sie bereits bei uns übernachtet haben und ob Sie vielleicht Teil unseres Treueprogramms sind
+long_question_3.wav: [interrupt] Möchten Sie zusätzlich zu Ihrem Zimmer auch einen Parkplatz in unserer Tiefgarage buchen der fünfzehn Euro pro Nacht kostet
+long_confirm_1.wav: [interrupt] Sehr gerne habe ich das für Sie notiert und werde sicherstellen dass alles zu Ihrer vollsten Zufriedenheit vorbereitet wird
+long_confirm_2.wav: [interrupt] Perfekt, dann ist alles geklärt und ich freue mich sehr darauf Sie am fünfzehnten Oktober bei uns begrüßen zu dürfen
