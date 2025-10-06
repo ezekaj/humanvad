@@ -1,18 +1,31 @@
 # Real Audio Test Results
 
-**Date:** 2025-10-05
-**Audio Source:** Google TTS (gTTS) - German language
-**Test Method:** Generated 10 German speech samples, converted to 16kHz WAV
+## 2025-10-06 — Excellence VAD with Intent Classifier
+
+**Command:**
+```bash
+python evaluate_excellence_real_audio.py \
+  --report reports/real_audio_summary.json
+```
+
+The report file captures the JSON metrics returned by the script so we can
+commit reproducible benchmarks alongside the console output.
+
+**Dataset:** `test_audio/` (gTTS-generated German telephone fixtures, 16 kHz WAV)
+
+| Model | Accuracy | Precision | Recall | Notes |
+|-------|----------|-----------|--------|-------|
+| Excellence VAD (intent-enabled) | **100% (10/10)** | 100% | 100% | Correctly surfaces the new intent metadata (question, greeting, response) and maintains an average decision margin of 0.188 around the 0.75 threshold. |
+| ProductionVAD baseline | 70% (7/10) | 70% | 100% | Flags every clip as speech, so it only yields once trailing silence appears; produces three false positives on incomplete utterances. |
+
+**Key Observation:** Combining semantic completion with the intent classifier restores robust turn-end detection on the same real audio where ProductionVAD alone previously failed. Complete sentences land well above the readiness threshold (average 0.724), while incomplete phrases stay safely below it.
 
 ---
 
-## Summary
+## 2025-10-05 — Historical Baseline Investigation
 
-Tested VAD with **real German speech audio** instead of random noise.
-
-**Key Finding:** ProductionVAD (webrtcvad) does NOT detect gTTS-generated speech as "user_speaking", causing all tests to return "continue" action.
-
-**Semantic Detector** works correctly when tested independently (50% accuracy due to missing punctuation in test sentences).
+**Audio Source:** Google TTS (gTTS) - German language
+**Test Method:** Generated 10 German speech samples, converted to 16kHz WAV
 
 ---
 

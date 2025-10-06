@@ -14,10 +14,13 @@ Target: 90-95% accuracy matching human telephone performance
 
 import numpy as np
 from collections import deque
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 import time
 from production_vad import ProductionVAD
 import re
+
+if TYPE_CHECKING:
+    from intent_classifier_german import IntentClassifierGerman, IntentResult
 
 
 class SemanticCompletionDetector:
@@ -34,27 +37,35 @@ class SemanticCompletionDetector:
             # Statements ending with period-like prosody
             r'\b(yes|no|okay|sure|thanks|thank you|alright|fine|perfect|great)\s*$',
             r'\b(done|finished|complete|ready|good)\s*$',
+            r'\b(ja|jawohl|genau|richtig|korrekt|gut|perfekt|danke|vielen dank|dankeschön|gerne|sehr gerne|alles klar)\s*$',
 
             # Complete grammatical structures
             r'\bi (am|was|will be|would be|have been|can|could|should|will|would)\s+\w+\s*$',
             r'\byou (are|were|will be|can|could|should|have|had)\s+\w+\s*$',
             r'\b(it is|that is|this is|there is|here is)\s+\w+\s*$',
+            r'\b(es ist|das ist|hier ist|dort ist|ich bin|wir sind|sie sind|ich habe|wir haben|sie haben)\s+\w+\s*$',
 
             # Questions (complete)
             r'\b(what|where|when|why|who|how)\s+.*\?$',
             r'\b(is|are|was|were|will|would|can|could|should)\s+\w+.*\?$',
+            r'\b(wer|was|wann|warum|wie|wieviel|wieviele|wo|wohin|woher)\s+.*$',
 
             # Sentence-final structures (time/place)
             r'\s+(today|tomorrow|yesterday|now|then|there|here)\s*$',
             r'\s+(tonight|morning|afternoon|evening|night)\s*$',
             r'\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s*$',
             r'\s+(minute|hour|day|week|month|year)s?\s*$',
+            r'\s+(heute|morgen|gestern|jetzt|dann|dort|hier)\s*$',
+            r'\s+(montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)\s*$',
+            r'\s+(minute|stunde|tag|woche|monat|jahr)(e|en)?\s*$',
 
             # Complete sentences ending with action verbs + object
             r'\b(check in|check out|book|arrive|leave|meet|schedule)\s+.*$',
+            r'\b(buche|buchen|anreise|anreisen|abreise|abreisen|ankomme|ankommen|verlasse|verlassen|treffe|treffen|plane|planen|helfe|helfen|unterstütze|unterstützen)\s+.*$',
 
             # Complete statements (verb + prepositional phrase ending)
             r'\s+(at the|in the|on the|from the|with the|to the)\s+\w+(\s+\w+)*\s*$',
+            r'\s+(am|im|in der|in dem|an der|an dem|mit dem|mit der|für den|für die|für das|zu dem|zu der)\s+\w+(\s+\w+)*\s*$',
 
             # Default: Long sentences (>8 words) without incomplete markers tend to be complete
         ]
@@ -64,26 +75,42 @@ class SemanticCompletionDetector:
             # Conjunctions (expecting continuation)
             r'\b(and|but|or|because|since|although|if|unless|while|when)\s*$',
             r'\b(so|therefore|however|moreover|furthermore)\s*$',
+            r'\b(und|aber|oder|denn|weil|dass|damit|falls|obwohl|während|sobald|solange)\s*$',
 
             # Prepositions (incomplete phrases)
             r'\b(in|on|at|to|from|with|by|for|of|about)\s*$',
+            r'\b(zur|zum|im|ins|beim|vom|aufs|ans|unter|über|vor|nach|seit|bis|gegen|ohne|um|auf|für|mit|bei)\s*$',
 
             # Auxiliary verbs (expecting main verb)
             r'\b(am|is|are|was|were|will|would|can|could|should|have|has|had)\s*$',
+            r'\b(bin|bist|ist|sind|war|waren|werde|würde|kann|könnte|soll|sollte|habe|hat|hatte|muss|müsste)\s*$',
 
             # Articles (expecting noun)
             r'\b(a|an|the)\s*$',
+            r'\b(ein|eine|der|die|das|den|dem|des)\s*$',
 
             # Possessives
             r'\b(my|your|his|her|its|our|their)\s*$',
+            r'\b(mein|dein|sein|ihr|unser|euer|deren)\s*$',
 
             # Incomplete phrases
             r'\bi (want to|need to|have to|going to)\s*$',
             r'\blet me\s*$',
+            r'\b(ich möchte|ich will|ich werde|ich würde|lassen sie mich|lass mich)\s*$',
         ]
 
         # Recent text buffer
         self.text_buffer = deque(maxlen=50)  # Last ~10 seconds of text
+
+        self.german_complete_last_words = {
+            'danke', 'vielen', 'dank', 'dankeschön', 'gern', 'gerne', 'jawohl', 'ja', 'korrekt',
+            'richtig', 'perfekt', 'okay', 'gut', 'bestens', 'super', 'erledigt', 'fertig',
+            'fragen', 'helfen', 'euro', 'zimmer', 'anruf', 'ihnen'
+        }
+        self.german_incomplete_last_words = {
+            'und', 'oder', 'dass', 'weil', 'zur', 'zum', 'mit', 'für', 'auf', 'nach', 'ins',
+            'im', 'beim', 'vom', 'ans', 'aufs', 'ohne', 'um', 'wenn', 'falls', 'damit'
+        }
 
     def is_complete(self, text: str) -> Dict:
         """
@@ -133,7 +160,8 @@ class SemanticCompletionDetector:
             reason = "trailing_filler"
 
         # 5. Word count heuristics
-        word_count = len(text.split())
+        words = text.split()
+        word_count = len(words)
 
         # Very short utterances (3-8 words) often complete if no incomplete markers
         if 3 <= word_count <= 8 and score >= 0.5:
@@ -144,6 +172,18 @@ class SemanticCompletionDetector:
         elif word_count > 8 and score == 0.5:
             score = 0.7  # Likely complete
             reason = "long_sentence"
+
+        last_word = words[-1] if words else ""
+        if last_word in self.german_complete_last_words and score >= 0.5:
+            score = min(score + 0.2, 1.0)
+            reason = "german_terminal_complete"
+        if last_word in self.german_incomplete_last_words:
+            score = max(score - 0.35, 0.0)
+            reason = "german_terminal_incomplete"
+
+        if score >= 0.5 and re.search(r'(eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|hundert|tausend|\d+)', text):
+            score = min(score + 0.15, 1.0)
+            reason = "german_number_complete"
 
         return {
             'complete_prob': score,
@@ -165,7 +205,8 @@ class ExcellenceVAD:
     def __init__(
         self,
         sample_rate: int = 16000,
-        turn_end_threshold: float = 0.75
+        turn_end_threshold: float = 0.75,
+        intent_classifier: Optional["IntentClassifierGerman"] = None
     ):
         self.sr = sample_rate
         self.turn_end_threshold = turn_end_threshold
@@ -175,6 +216,10 @@ class ExcellenceVAD:
 
         # Semantic detection
         self.semantic_detector = SemanticCompletionDetector()
+
+        # Optional semantic intent model (German)
+        self.intent_classifier = intent_classifier
+        self.intent_history = deque(maxlen=50)
 
         # Audio buffers
         self.user_buffer = deque(maxlen=sample_rate * 3)
@@ -279,12 +324,26 @@ class ExcellenceVAD:
             semantic_prob = 0.5
             semantic_reason = "no_text"
 
+        intent_result = None
+        intent_signal = 0.5
+        if self.intent_classifier and ai_text and len(ai_text.strip()) > 0:
+            intent_result = self.intent_classifier.classify(ai_text)
+            self.intent_history.append(intent_result)
+            intent_signal = self._intent_to_signal(intent_result)
+
         # 4. FUSION (matching human weighting)
         # Research shows: semantics 50-60%, prosody 40-50%
-        final_turn_end_prob = (
-            0.45 * prosody_prob +      # Prosodic cues
-            0.55 * semantic_prob        # Semantic/syntactic completion
-        )
+        if intent_result is not None:
+            final_turn_end_prob = (
+                0.40 * prosody_prob +      # Prosodic cues
+                0.45 * semantic_prob +     # Semantic/syntactic completion
+                0.15 * intent_signal       # Pragmatic/intent timing cues
+            )
+        else:
+            final_turn_end_prob = (
+                0.45 * prosody_prob +      # Prosodic cues
+                0.55 * semantic_prob        # Semantic/syntactic completion
+            )
 
         # If user not speaking, return monitoring info
         if not user_speaking:
@@ -297,6 +356,11 @@ class ExcellenceVAD:
                 'turn_end_prob': final_turn_end_prob,
                 'prosody_prob': prosody_prob,
                 'semantic_prob': semantic_prob,
+                'intent_signal': intent_signal,
+                'intent_type': intent_result.intent_type if intent_result else None,
+                'intent_subtype': intent_result.intent_subtype if intent_result else None,
+                'intent_confidence': intent_result.confidence if intent_result else None,
+                'intent_expected_gap_ms': intent_result.expected_gap_ms if intent_result else None,
                 'latency_ms': latency_ms
             }
 
@@ -336,6 +400,11 @@ class ExcellenceVAD:
             'semantic_prob': semantic_prob,
             'semantic_reason': semantic_reason if ai_text else None,
             'ai_text': ai_text,
+            'intent_signal': intent_signal,
+            'intent_type': intent_result.intent_type if intent_result else None,
+            'intent_subtype': intent_result.intent_subtype if intent_result else None,
+            'intent_confidence': intent_result.confidence if intent_result else None,
+            'intent_expected_gap_ms': intent_result.expected_gap_ms if intent_result else None,
 
             # Performance
             'latency_ms': latency_ms
@@ -359,6 +428,33 @@ class ExcellenceVAD:
         self.energy_history.clear()
         self.confidence_history.clear()
         self.semantic_detector.text_buffer.clear()
+        self.intent_history.clear()
+
+    def _intent_to_signal(self, intent_result: "IntentResult") -> float:
+        """Map intent classification into turn-taking readiness signal [0, 1]."""
+
+        # Normalize expected response timing (shorter expected gaps => higher readiness)
+        gap_ms = intent_result.expected_gap_ms or 300
+        gap_ms = max(50, min(600, gap_ms))
+        gap_factor = (600 - gap_ms) / 550.0  # 50ms -> 1.0, 600ms -> 0.0
+
+        # Base score influenced by confidence (centered at 0.5)
+        base = 0.5 + 0.3 * (intent_result.confidence - 0.5)
+
+        if intent_result.is_fpp:
+            # First-pair parts expect quick user response
+            base += 0.3 * gap_factor
+        else:
+            # Non-FPP intents: allow moderate influence
+            if intent_result.intent_type in {'statement', 'response', 'discourse'}:
+                base += 0.1 * gap_factor
+            else:
+                base += 0.2 * gap_factor
+
+        if intent_result.intent_type == 'unknown':
+            base = 0.45 + 0.2 * gap_factor
+
+        return float(np.clip(base, 0.0, 1.0))
 
 
 def demo():

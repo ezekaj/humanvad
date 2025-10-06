@@ -158,4 +158,7 @@ pip install numpy requests ollama
 python test_comprehensive.py          # Hotel test (100%)
 python generate_diverse_german_test.py  # Multi-domain (96.7%)
 python test_performance.py            # Speed/memory benchmark
+python evaluate_excellence_real_audio.py  # Compare Excellence vs Production on real WAV clips
+# To export JSON metrics alongside the console summary:
+# python evaluate_excellence_real_audio.py --report reports/real_audio_summary.json
 ```
