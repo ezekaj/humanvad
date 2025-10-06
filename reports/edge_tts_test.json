@@ -1,0 +1,30 @@
+{
+  "samples_evaluated": 10,
+  "samples_skipped": 0,
+  "excellence": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "counts": {
+      "tp": 7,
+      "tn": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "total": 10
+  },
+  "production": {
+    "accuracy": 0.7,
+    "precision": 0.7,
+    "recall": 1.0,
+    "counts": {
+      "tp": 7,
+      "tn": 0,
+      "fp": 3,
+      "fn": 0
+    },
+    "total": 10
+  },
+  "avg_excellence_turn_end_prob": 0.7280227272727273,
+  "avg_decision_margin": 0.18346818181818184
+}

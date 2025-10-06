@@ -1,0 +1,13 @@
+Generated with edge-tts (Microsoft Azure Neural Voice)
+Voice: de-DE-KatjaNeural
+
+complete_sentence_1.wav: Das Hotel hat funfzig Zimmer
+complete_sentence_2.wav: Vielen Dank fur Ihren Anruf
+complete_sentence_3.wav: Guten Tag, wie kann ich Ihnen helfen
+incomplete_hesitation.wav: Ich mochte Ihnen sagen dass
+incomplete_preposition.wav: Ich gehe zur
+complete_with_number.wav: Der Preis betragt zweihundert Euro
+complete_confirmation.wav: Ja, das ist korrekt
+incomplete_conjunction.wav: Das Zimmer ist verfugbar und
+complete_question.wav: Haben Sie noch weitere Fragen
+complete_polite.wav: Sehr gerne, ich helfe Ihnen

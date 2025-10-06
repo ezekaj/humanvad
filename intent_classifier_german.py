@@ -50,7 +50,7 @@ class IntentClassifierGerman:
 
         self.fpp_patterns = [
             # === GREETINGS === (50-100ms gap)
-            (r'^(hallo|guten tag|guten morgen|guten abend|moin)\b',
+            (r'^(hallo|guten tag|guten morgen|guten abend|moin|grüß gott|servus)\b',
              'greeting', 'initial', 50, 'greeting'),
 
             # === WH-QUESTIONS === (100-150ms gap - expect specific answer)
@@ -62,6 +62,14 @@ class IntentClassifierGerman:
              'question', 'wh_question', 120, 'answer_reason'),
             (r'^\s*wie\s+viele?\s+',
              'question', 'wh_quantity', 100, 'answer_number'),
+
+            # === OFFERS === (200ms gap - must be BEFORE yes/no questions)
+            (r'^\s*möchten\s+sie\s+.*\b(buchen|reservieren|bestellen)\b',
+             'offer', 'booking_offer', 200, 'accept_reject'),
+            (r'^\s*möchten\s+sie\s+(noch\s+)?(etwas|was)\b',
+             'offer', 'service_offer', 200, 'accept_reject'),
+            (r'^\s*(kann|könnte|darf|möchte)\s+ich\s+(ihnen\s+)?helfen\b',
+             'offer', 'help_offer', 200, 'accept_reject'),
 
             # === YES/NO QUESTIONS === (150-200ms gap - expect ja/nein)
             (r'^\s*(können|möchten|wollen|dürfen|sollen|müssen)\s+sie\b',
@@ -75,26 +83,22 @@ class IntentClassifierGerman:
             (r'\b(oder|nicht wahr|gell|ne|wa)\s*\?\s*$',
              'question', 'tag_question', 100, 'confirmation'),
 
-            # === OFFERS === (200ms gap - expect accept/reject)
-            (r'^\s*(kann|könnte|darf|möchte)\s+ich\s+(ihnen\s+)?helfen\b',
-             'offer', 'help_offer', 200, 'accept_reject'),
-            (r'^\s*möchten\s+sie\s+(noch\s+)?(etwas|was)\b',
-             'offer', 'service_offer', 200, 'accept_reject'),
-
             # === REQUESTS === (250ms gap - expect compliance)
+            (r'^\s*ich\s+(brauche|benötige|möchte|hätte gern)\b',
+             'request', 'need_request', 250, 'comply_refuse'),
             (r'^\s*könnten\s+sie\b',
              'request', 'polite_request', 250, 'comply_refuse'),
             (r'^\s*(bitte|würden\s+sie)\b',
              'request', 'polite_request', 250, 'comply_refuse'),
-            (r'^\s*(geben|zeigen|sagen|erklären)\s+sie\s+mir\b',
+            (r'^\s*(geben|zeigen|sagen|erklären|bringen)\s+sie\s+mir\b',
              'request', 'direct_request', 200, 'comply_refuse'),
 
             # === APOLOGY EXPECTATION === (100ms - expect acceptance)
-            (r'\b(entschuldigung|tut mir leid|verzeihung)\b',
+            (r'\b(entschuldigung|tut mir (sehr )?leid|verzeihung)\b',
              'apology', 'apologize', 100, 'accept_apology'),
 
             # === CLOSING === (200ms - expect reciprocal)
-            (r'\b(auf wiedersehen|auf wiederhören|tschüss|bis bald|schönes wochenende)\b',
+            (r'\b(auf wiedersehen|auf wiederhören|tschüss|bis bald|schönes wochenende|gute reise|schönen tag noch)\b',
              'closing', 'farewell', 200, 'farewell'),
         ]
 
@@ -109,7 +113,7 @@ class IntentClassifierGerman:
              'statement', 'declarative', 400, None),
 
             # === CONFIRMATIONS === (100-200ms - often followed by elaboration)
-            (r'^\s*(ja|jawohl|genau|richtig|stimmt|korrekt)\b',
+            (r'^\s*(ja|jawohl|genau|richtig|stimmt|korrekt|selbstverständlich|natürlich)\b',
              'response', 'confirm', 100, 'elaboration_optional'),
 
             # === DENIALS === (150ms - may expect clarification)
@@ -117,11 +121,11 @@ class IntentClassifierGerman:
              'response', 'deny', 150, 'clarification_optional'),
 
             # === ACKNOWLEDGMENTS === (200ms - conversation continues)
-            (r'^\s*(okay|gut|in ordnung|alles klar|perfekt|super)\b',
-             'response', 'acknowledge', 200, None),
+            (r'^\s*(okay|gut|in ordnung|alles klar|perfekt|super|sofort|gerne)\b',
+             'response', 'acknowledge', 100, None),
 
             # === THANKS === (150ms - expect "bitte"/"gerne")
-            (r'\b(danke|vielen dank|dankeschön)\b',
+            (r'\b(danke|vielen dank|dankeschön|herzlichen dank)\b',
              'social', 'thanks', 150, 'accept_thanks'),
 
             # === BACKCHANNEL INVITATION === (200ms - expects minimal response)
@@ -167,6 +171,18 @@ class IntentClassifierGerman:
             )
 
         text_clean = text.strip().lower()
+
+        # PRIORITY 0: Check discourse markers FIRST (fillers override everything)
+        for pattern, intent_type, subtype, gap_ms, expected_spp in self.discourse_patterns:
+            if re.search(pattern, text_clean, re.IGNORECASE):
+                return IntentResult(
+                    intent_type=intent_type,
+                    intent_subtype=subtype,
+                    expected_gap_ms=gap_ms,
+                    is_fpp=False,
+                    expected_spp=expected_spp,
+                    confidence=0.7
+                )
 
         # PRIORITY 1: Check FPP patterns (adjacency pair starters)
         for pattern, intent_type, subtype, gap_ms, expected_spp in self.fpp_patterns:
