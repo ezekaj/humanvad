@@ -1,0 +1,70 @@
+{
+  "guten_morgen": {
+    "text": "Guten Morgen",
+    "expected": "interrupt"
+  },
+  "guten_tag": {
+    "text": "Guten Tag",
+    "expected": "interrupt"
+  },
+  "auf_wiedersehen": {
+    "text": "Auf Wiedersehen",
+    "expected": "interrupt"
+  },
+  "danke": {
+    "text": "Danke",
+    "expected": "interrupt"
+  },
+  "bitte": {
+    "text": "Bitte",
+    "expected": "interrupt"
+  },
+  "ja": {
+    "text": "Ja",
+    "expected": "interrupt"
+  },
+  "nein": {
+    "text": "Nein",
+    "expected": "interrupt"
+  },
+  "hallo": {
+    "text": "Hallo",
+    "expected": "interrupt"
+  },
+  "herzlich_willkommen": {
+    "text": "Herzlich willkommen",
+    "expected": "interrupt"
+  },
+  "ich_liebe_deutsch": {
+    "text": "Ich liebe Deutsch",
+    "expected": "interrupt"
+  },
+  "alles_gute": {
+    "text": "Alles Gute",
+    "expected": "interrupt"
+  },
+  "bis_bald": {
+    "text": "Bis bald",
+    "expected": "interrupt"
+  },
+  "entschuldigung": {
+    "text": "Entschuldigung",
+    "expected": "interrupt"
+  },
+  "gute_nacht": {
+    "text": "Gute Nacht",
+    "expected": "interrupt"
+  },
+  "schoen": {
+    "text": "Schön",
+    "expected": "interrupt"
+  },
+  "viel_glueck": {
+    "text": "Viel Glück",
+    "expected": "interrupt"
+  },
+  "wie_gehts": {
+    "text": "Wie geht's",
+    "expected": "interrupt"
+  }
+}

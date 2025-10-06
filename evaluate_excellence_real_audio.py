@@ -210,7 +210,7 @@ def evaluate(audio_dir: Path, metadata: Dict[str, Dict[str, str]]) -> Dict[str, 
     classifier = IntentClassifierGerman()
     excellence = ExcellenceVAD(
         sample_rate=16000,
-        turn_end_threshold=0.75,
+        turn_end_threshold=0.60,
         intent_classifier=classifier,
     )
     production = ProductionVAD(sample_rate=16000)

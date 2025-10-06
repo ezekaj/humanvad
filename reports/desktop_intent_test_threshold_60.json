@@ -1,0 +1,30 @@
+{
+  "samples_evaluated": 17,
+  "samples_skipped": 0,
+  "excellence": {
+    "accuracy": 0.7647058823529411,
+    "precision": 1.0,
+    "recall": 0.7647058823529411,
+    "counts": {
+      "tp": 13,
+      "tn": 0,
+      "fp": 0,
+      "fn": 4
+    },
+    "total": 17
+  },
+  "production": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "counts": {
+      "tp": 17,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    "total": 17
+  },
+  "avg_excellence_turn_end_prob": 0.6740748663101604,
+  "avg_decision_margin": 0.07407486631016044
+}
